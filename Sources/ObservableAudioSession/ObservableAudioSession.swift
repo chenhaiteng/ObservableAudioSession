@@ -5,7 +5,7 @@
 //  Created by Chen Hai Teng on 3/26/24.
 //
 
-import AVFAudio
+import AVFoundation
 import Combine
 
 public class ObservableAudioSession : ObservableObject {
@@ -28,6 +28,10 @@ public class ObservableAudioSession : ObservableObject {
         Task {
             await setCategory(category)
         }
+    }
+    
+    public var preferredInput: AVAudioSessionPortDescription? {
+        session.preferredInput
     }
     
     public func setPreferredInput(_ input: AVAudioSessionPortDescription) {
