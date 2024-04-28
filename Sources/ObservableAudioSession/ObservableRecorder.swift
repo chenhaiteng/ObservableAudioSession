@@ -30,6 +30,7 @@ public class ObservableRecorder : NSObject, ObservableObject {
     
     @Published public var meteringData: AVAudioMetering? = nil
     
+//    private var settings: [String: Any]
     public var resultUrl: URL? {
         recorder?.url
     }
@@ -74,6 +75,7 @@ public class ObservableRecorder : NSObject, ObservableObject {
     public func stop() {
         if let recorder = recorder, recorder.isRecording {
             recorder.stop()
+            isRecording = false
             meteringTimer?.cancel()
             meteringTimer = nil
         }
@@ -86,9 +88,13 @@ public class ObservableRecorder : NSObject, ObservableObject {
         }
     }
     
-    public override init() {
-        super.init()
-        AVAudioRecorder.prepareRecorder(settings: RecordingSettings.aacStereo).receive(on: DispatchQueue.main).sink { result in
+    public func reset(with settings: [String: Any]) {
+        stop()
+        recorder = nil
+        ready = false
+        recordingResult = false
+        
+        AVAudioRecorder.prepareRecorder(settings: settings).receive(on: DispatchQueue.main).sink { result in
             if case .failure(let error) = result {
                 debugPrint("[AVAudioRecorder]" + error.localizedDescription)
                 self.recorder = nil
