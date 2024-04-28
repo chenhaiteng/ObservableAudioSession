@@ -20,8 +20,7 @@ public class ObservableAudioSession : ObservableObject {
     
     private let session: AVAudioSession
     private var cancellables = Set<AnyCancellable>()
-    
-    public init(_ session: AVAudioSession = AVAudioSession.sharedInstance(), category: AudioCategory = AudioCategory(.playAndRecord)) {
+    public init(_ session: AVAudioSession = AVAudioSession.sharedInstance(), category: AudioCategory = AudioCategory(.playAndRecord, mode: .default, options: [.allowBluetooth, .allowBluetoothA2DP])) {
         self.session = session
         NotificationCenter.default.addObserver(self, selector: #selector(handleRouteChange), name: AVAudioSession.routeChangeNotification, object: self.session)
         NotificationCenter.default.addObserver(self, selector: #selector(handleInterruption), name: AVAudioSession.interruptionNotification, object: self.session)
