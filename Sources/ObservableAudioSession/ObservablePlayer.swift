@@ -42,13 +42,17 @@ public class ObservablePlayer: NSObject, ObservableObject {
     private let timer = Timer.publish(every: meteringPeriod, on: .main, in: .common).autoconnect()
     private var meteringTimer: AnyCancellable? = nil
     
-    public func prepare(url: URL) {
+    public func clean() {
         if let player = player, player.isPlaying {
             player.stop()
         }
         isPlaying = false
         ready = false
         player = nil
+    }
+    
+    public func prepare(url: URL) {
+        clean()
         AVAudioPlayer.createPlayer(url: url).receive(on: RunLoop.main).sink(receiveCompletion: { result in
             if case .failure(let failure) = result {
                 debugPrint(failure.localizedDescription)
@@ -60,8 +64,9 @@ public class ObservablePlayer: NSObject, ObservableObject {
         }).store(in: &cancellables)
     }
     
-    public func play() {
+    public func play(loop: Bool = false) {
         if let player = player, !player.isPlaying {
+            player.numberOfLoops = loop ? -1 : 0
             isPlaying = player.play()
             meteringTimer = timer.receive(on: meteringQueue).sink(receiveValue: { _ in
                 player.updateMeters()
