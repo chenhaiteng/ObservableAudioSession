@@ -65,20 +65,30 @@ public extension AVAudioSession {
     /// setup a AVAudioSession from AudioCategory
     func setup(with category: AudioCategory) async -> Future<AVAudioSession, AVAudioSessionFail> {
         Future {
-            guard self.availableCategories.contains(category.category) else {
-                let verbose = "The category \(category.category.rawValue) is unavailable on this device."
-                debugPrint("[AudioSession]" + verbose)
-                throw AVAudioSessionFail.activate(verbose)
-            }
+            let sessionCategory = try self.check(category: category.category)
             guard self.availableModes.contains(category.mode) else {
                 let verbose = "The mode \(category.mode.rawValue) is unavailable on this device."
                 debugPrint("[AudioSession]" + verbose)
                 throw AVAudioSessionFail.activate(verbose)
             }
-            try self.setCategory(category.category, mode: category.mode, options: category.options)
+            try self.setCategory(sessionCategory, mode: category.mode, options: category.options)
             try self.setActive(true)
             return self
         }
+    }
+    
+    func check(category: Category) throws -> Category {
+        guard self.availableCategories.contains(category) else {
+            let verbose = "The category \(category.rawValue) is unavailable on this device."
+            debugPrint("[AudioSession]" + verbose)
+            throw AVAudioSessionFail.activate(verbose)
+        }
+        return category
+    }
+    
+    func set(category: Category) throws {
+        guard category != self.category else { return }
+        try setCategory(check(category: category))
     }
 }
 

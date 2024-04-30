@@ -71,6 +71,14 @@ public class ObservableAudioSession : ObservableObject {
         }).store(in: &cancellables)
     }
     
+    public func setCategory(_ category: AVAudioSession.Category) {
+        do {
+            try session.set(category: category)
+        } catch {
+            debugPrint("set session category failed: \(error)")
+        }
+    }
+    
     @objc func handleRouteChange(notification: Notification) {
         if let obj = notification.object as? AVAudioSession, obj == session {
             self.availableInputs = session.availableInputs ?? []
