@@ -109,6 +109,16 @@ public class ObservableRecorder : NSObject, ObservableObject {
         }.store(in: &cancellables)
     }
     
+    public func clean() {
+        stop()
+        if let result = recorder?.url, result.isFileURL, let fileExist = try? result.checkResourceIsReachable(), fileExist {
+            try? FileManager.default.removeItem(at: result)
+        }
+        recorder = nil
+        ready = false
+        recordingResult = false
+    }
+    
     deinit {
         if let recorder = recorder, recorder.isRecording {
             recorder.stop()
